@@ -5,28 +5,58 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace ProductManager.Controllers
 {
     public class ProductController : ApiController
     {
-        static List<Product> products = new List<Product>
+        //static public DataSour
+        private string strSQL;
+        private static SqlConnection Conn = new SqlConnection(Config.config.ConnectionString);
+        
+        /*static List<Product> products = new List<Product>
         {
-            new Product {Id = 1, Category = "Groceries", Name = "Tomato Soup", Price = 1.75M },
-            new Product {Id = 2, Category = "Toys", Name = "Yo-yo", Price = 10.60M },
-            new Product {Id = 3, Category = "Hardware", Name = "Hammer", Price = 16.99M }
-        };
+            new Product {id = 1, categoria = "Informática", descricao = "Notebook", preco = 1350.00M },
+            new Product {id = 2, categoria = "Games", descricao = "Xbox One", preco = 1249.99M },
+            new Product {id = 3, categoria = "Informática", descricao = "Mouse", preco = 24.99M },
+            new Product {id = 4, categoria = "Games", descricao = "Playstation 4", preco = 1199.99M },
+            new Product {id = 5, categoria = "Eletrodoméstico", descricao = "SMARTV 42''", preco = 2099.99M }
+        };*/
 
         public IHttpActionResult Get()
         {
-            // Retorna tudo
+            strSQL = "SELECT * FROM Produto";
+
+            if (Conn.State != ConnectionState.Open)
+                Conn.Open();
+
+            List<Product> products = new List<Product>();
+
+            try
+            {
+                SqlCommand command = new SqlCommand(strSQL, Conn);
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.HasRows)
+                {
+                    products.Add(new Product { id = int.Parse(reader["id"].ToString()), categoria = reader["categoria"].ToString(), descricao = reader["descricao"].ToString(), preco = float.Parse(reader["preco"].ToString()) });
+                }
+
+            } catch(Exception e)
+            {
+
+            }
+
+                // Retorna tudo
             return Ok(products);
         }
 
         public IHttpActionResult Get(int id)
         {
             // Retorna um objeto de produto com o ID passado
-            return Ok(products.FirstOrDefault<Product>(x => x.Id == id));
+            //return Ok(products.FirstOrDefault<Product>(x => x.id == id));
         }
         public HttpResponseMessage Post(Product produto)
         {
@@ -48,7 +78,7 @@ namespace ProductManager.Controllers
         public HttpResponseMessage Put(Product produto)
         {
 
-            int index = products.FindIndex(p => p.Id == produto.Id);
+            int index = products.FindIndex(p => p.id == produto.id);
 
             if (index > -1)
             {
@@ -68,7 +98,7 @@ namespace ProductManager.Controllers
         public HttpResponseMessage Delete(int id)
         {
 
-            int index = products.FindIndex(p => p.Id == id);
+            int index = products.FindIndex(p => p.id == id);
 
             if (index > -1)
             {
