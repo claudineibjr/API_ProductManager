@@ -24,5 +24,16 @@ namespace ProductManager.Models
         public string descricao { get; set; }
         public string categoria { get; set; }
         public float preco { get; set; }
+
+        public Product() { }
+
+        public Product(int _id, string _descricao, string _categoria, float _preco)
+        {
+            id = _id;
+            descricao = _descricao;
+            categoria = _categoria;
+            preco = _preco;
+        }
+
     }
 }
