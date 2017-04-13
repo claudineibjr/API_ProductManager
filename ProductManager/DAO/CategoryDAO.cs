@@ -5,7 +5,7 @@ using System.Data.SqlServerCe;
 
 namespace ProductManager.DAO
 {
-    static public class ProductDAO
+    static public class CategoryDAO
     {
         #region Variáveis Globais
         //string global que contém o comando SQL que será executado
@@ -15,21 +15,19 @@ namespace ProductManager.DAO
         private static SqlCeConnection Conn = new SqlCeConnection(Config.Config.ConnectionString);
         #endregion
 
-        static public List<Models.Product> SelectProducts(int id = 0)
+        static public List<Models.Category> SelectCategories(int id = 0)
         {
-            //Comando SQL que buscará todos os campos de todos os produtos na base de dados ou de um produto específico
-            strSQL =    "SELECT produto.id AS p_id, produto.descricao AS p_descricao, produto.preco as p_preco, " +
-                        "       categoria.id AS c_id, categoria.descricao AS c_descricao " +
-                        "FROM   Produto " +
-                        "       LEFT JOIN Categoria ON produto.id_categoria = categoria.id " +
-                        ( id == 0 ? "" : "WHERE  produto.id = @id");
+            //Comando SQL que buscará todos os campos de todos as categorias na base de dados ou de uma categoria específica
+            strSQL =    "SELECT categoria.id AS c_id, categoria.descricao AS c_descricao " +
+                        "FROM   Categoria " +
+                        ( id == 0 ? "" : "WHERE  categoria.id = @id");
 
             //Caso a conexão esteja fechada, a abre
             if (Conn.State != ConnectionState.Open)
                 Conn.Open();
 
-            //Cria uma lista de produtos que serão retornados
-            List<Models.Product> products = new List<Models.Product>();
+            //Cria uma lista de categorias que serão retornadas
+            List<Models.Category> categories = new List<Models.Category>();
 
             //Cria e instancia o command que irá executar a cláusula passada
             SqlCeCommand command = new SqlCeCommand(strSQL, Conn);
@@ -40,7 +38,7 @@ namespace ProductManager.DAO
                 //Cria uma lista de parâmetros
                 List<SqlCeParameter> parametros = new List<SqlCeParameter>();
 
-                //Adiciona na lista de parâmetros, todos os parâmetros necessários para a inserção do produto
+                //Adiciona na lista de parâmetros, todos os parâmetros necessários para a inserção da categoria
                 parametros.Add(new SqlCeParameter("@id", id));
 
                 //Adiciona ao comando SQL todos os parâmetros criados
@@ -53,17 +51,11 @@ namespace ProductManager.DAO
             //Enquanto houver registros a serem lidos, serão lidos
             while (reader.Read())
             {
-                //Adiciona um novo produto na lista de produtos
-                products.Add(new Models.Product
+                //Adiciona uma nova categoria na lista de categorias
+                categories.Add(new Models.Category
                                 {
-                                    id = int.Parse(reader["p_id"].ToString()),
-                                    descricao = reader["p_descricao"].ToString(),
-                                    preco = float.Parse(reader["p_preco"].ToString()),
-                                    categoria = new Models.Category()
-                                    {
-                                        id = int.Parse(reader["c_id"].ToString()),
-                                        descricao = reader["c_descricao"].ToString()
-                                    }
+                                    id = int.Parse(reader["c_id"].ToString()),
+                                    descricao = reader["c_descricao"].ToString()
                                 }
                             );
             }
@@ -72,17 +64,17 @@ namespace ProductManager.DAO
             if (Conn.State == ConnectionState.Open)
                 Conn.Close();
 
-            return products;
+            return categories;
         }
-        static public bool InsertProduct(Models.Product produto)
+        static public bool InsertCategory(Models.Category categoria)
         {
 
-            if (produto != null)
+            if (categoria != null)
             {
-                //Comando SQL que irá inserir o produto no banco de dados
-                strSQL =    "INSERT INTO Produto " +
-                            "(descricao, categoria, preco) " +
-                            "VALUES (@descricao, @categoria, @preco)";
+                //Comando SQL que irá inserir a categoria no banco de dados
+                strSQL =    "INSERT INTO Categoria " +
+                            "(descricao) " +
+                            "VALUES (@descricao)";
 
                 //Caso a conexão esteja fechada, a abre
                 if (Conn.State != ConnectionState.Open)
@@ -94,10 +86,8 @@ namespace ProductManager.DAO
                 //Cria uma lista de parâmetros
                 List<SqlCeParameter> parametros = new List<SqlCeParameter>();
 
-                //Adiciona na lista de parâmetros, todos os parâmetros necessários para a inserção do produto
-                parametros.Add(new SqlCeParameter("@descricao", produto.descricao));
-                parametros.Add(new SqlCeParameter("@categoria", produto.categoria.id));
-                parametros.Add(new SqlCeParameter("@preco", produto.preco));
+                //Adiciona na lista de parâmetros, todos os parâmetros necessários para a inserção da categoria
+                parametros.Add(new SqlCeParameter("@descricao", categoria.descricao));
 
                 //Adiciona ao comando SQL todos os parâmetros criados
                 for (int i = 0; i < parametros.Count; i++) command.Parameters.Add(parametros[i]);
@@ -105,10 +95,10 @@ namespace ProductManager.DAO
                 try
                 {
 
-                    //Comando SQL que retorna o próximo ID de produto
+                    //Comando SQL que retorna o próximo ID de categoria
                     strSQL =    "SELECT autoinc_next ID " +
                                 "FROM   information_schema.columns " +
-                                "WHERE  column_name = 'id' AND table_name = 'produto' ";
+                                "WHERE  column_name = 'id' AND table_name = 'categoria' ";
 
                     //Cria e instancia o command que irá executar a cláusula passada
                     SqlCeCommand command_aux = new SqlCeCommand(strSQL, Conn);
@@ -119,8 +109,8 @@ namespace ProductManager.DAO
                     //Enquanto houver registros a serem lidos, serão lidos
                     while (reader.Read())
                     {
-                        //Define o ID do produto como o registro de próximo número de ID a ser criado para o produto
-                        produto.id = int.Parse(reader["ID"].ToString());
+                        //Define o ID da categoria como o registro de próximo número de ID a ser criado para a categoria
+                        categoria.id = int.Parse(reader["ID"].ToString());
                     }
 
                     //Executa o comando SQL
@@ -144,17 +134,15 @@ namespace ProductManager.DAO
                 return false;
             }
         }
-        static public bool UpdateProduct(Models.Product produto)
+        static public bool UpdateCategory(Models.Category categoria)
         {
-            if (produto != null)
+            if (categoria != null)
             {
                 try
                 {
-                    //Comando SQL que atualizará o produto na base de dados
-                    strSQL =    "UPDATE Produto " +
-                                "SET    descricao = @descricao, " +
-                                "       categoria = @categoria, " +
-                                "       preco = @preco " +
+                    //Comando SQL que atualizará a categoria na base de dados
+                    strSQL =    "UPDATE Categoria " +
+                                "SET    descricao = @descricao " +
                                 "WHERE  id = @id";
 
                     //Caso a conexão esteja fechada, a abre
@@ -167,11 +155,9 @@ namespace ProductManager.DAO
                     //Cria uma lista de parâmetros
                     List<SqlCeParameter> parametros = new List<SqlCeParameter>();
 
-                    //Adiciona na lista de parâmetros, todos os parâmetros necessários para a atualização do produto
-                    parametros.Add(new SqlCeParameter("@descricao", produto.descricao));
-                    parametros.Add(new SqlCeParameter("@categoria", produto.categoria.id));
-                    parametros.Add(new SqlCeParameter("@preco", produto.preco));
-                    parametros.Add(new SqlCeParameter("@id", produto.id));
+                    //Adiciona na lista de parâmetros, todos os parâmetros necessários para a atualização da categoria
+                    parametros.Add(new SqlCeParameter("@descricao", categoria.descricao));
+                    parametros.Add(new SqlCeParameter("@id", categoria.id));
 
                     //Adiciona ao comando SQL todos os parâmetros criados
                     for (int i = 0; i < parametros.Count; i++) command.Parameters.Add(parametros[i]);
@@ -198,10 +184,10 @@ namespace ProductManager.DAO
                 return false;
             }
         }
-        static public bool DeleteProduct(int id)
+        static public bool DeleteCategory(int id)
         {
-            //Comando SQL que deletará o produto da base de dados
-            strSQL =    "DELETE Produto " +
+            //Comando SQL que deletará a categoria da base de dados
+            strSQL =    "DELETE Categoria " +
                         "WHERE  id = @id";
 
             try
@@ -217,7 +203,7 @@ namespace ProductManager.DAO
                 //Cria uma lista de parâmetros
                 List<SqlCeParameter> parametros = new List<SqlCeParameter>();
 
-                //Adiciona na lista de parâmetros, todos os parâmetros necessários para a atualização do produto
+                //Adiciona na lista de parâmetros, todos os parâmetros necessários para a atualização da categoria
                 parametros.Add(new SqlCeParameter("@id", id));
 
                 //Adiciona ao comando SQL todos os parâmetros criados
