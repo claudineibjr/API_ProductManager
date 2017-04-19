@@ -32,7 +32,10 @@ namespace ProductManager.Controllers
             //Cria uma mensagem de resposta HTTP
             HttpResponseMessage response = null;
 
-            if (DAO.ProductDAO.InsertProduct(produto))
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> insercao = DAO.ProductDAO.InsertProduct(produto);
+
+            if (Convert.ToBoolean(insercao[0]))
             {
                 //Caso tenha dado algum problema, define a mensagem de resposta com erro
                 response = Request.CreateResponse(HttpStatusCode.OK);
@@ -46,7 +49,7 @@ namespace ProductManager.Controllers
                 response = Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 //Caso tenha dado algum problema, define a mensagem personalizada de resposta
-                response.Content = new StringContent("Falha ao inserir o produto");
+                response.Content = new StringContent("Falha ao inserir o produto\n\n" + insercao[1].ToString());
             }
 
             //Retorna a mensagem http
@@ -60,7 +63,10 @@ namespace ProductManager.Controllers
             //Cria uma mensagem de resposta HTTP
             HttpResponseMessage response = null;
 
-            if (DAO.ProductDAO.UpdateProduct(produto))
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> atualizacao = DAO.ProductDAO.UpdateProduct(produto);
+
+            if (Convert.ToBoolean(atualizacao[0]))
             {
                 //Caso tenha dado algum problema, define a mensagem de resposta com erro
                 response = Request.CreateResponse(HttpStatusCode.OK);
@@ -74,7 +80,7 @@ namespace ProductManager.Controllers
                 response = Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 //Caso tenha dado algum problema, define a mensagem personalizada de resposta
-                response.Content = new StringContent("Falha ao atualizar o produto");
+                response.Content = new StringContent("Falha ao atualizar o produto\n\n" + atualizacao[1].ToString());
             }
 
             //Retorna a mensagem http
@@ -87,7 +93,10 @@ namespace ProductManager.Controllers
         {
             HttpResponseMessage response;
 
-            if (DAO.ProductDAO.DeleteProduct(id))
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> delecao = DAO.ProductDAO.DeleteProduct(id);
+
+            if (Convert.ToBoolean(delecao[0]))
             {
                 //Caso tenha dado algum problema, define a mensagem de resposta com erro
                 response = Request.CreateResponse(HttpStatusCode.OK);
@@ -101,7 +110,7 @@ namespace ProductManager.Controllers
                 response = Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 //Caso tenha dado algum problema, define a mensagem personalizada de resposta
-                response.Content = new StringContent("Falha ao deletar o produto");
+                response.Content = new StringContent("Falha ao deletar o produto\n\n" + delecao[1].ToString());
             }
 
             //Retorna a mensagem http

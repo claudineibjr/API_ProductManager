@@ -1,4 +1,6 @@
 ﻿using ProductManager.Models;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -28,7 +30,10 @@ namespace ProductManager.Controllers
             //Cria uma mensagem de resposta HTTP
             HttpResponseMessage response = null;
 
-            if (DAO.CategoryDAO.InsertCategory(categoria))
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> insercao = DAO.CategoryDAO.InsertCategory(categoria);
+
+            if (Convert.ToBoolean(insercao[0]))
             {
                 //Caso tenha dado algum problema, define a mensagem de resposta com erro
                 response = Request.CreateResponse(HttpStatusCode.OK);
@@ -42,7 +47,7 @@ namespace ProductManager.Controllers
                 response = Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 //Caso tenha dado algum problema, define a mensagem personalizada de resposta
-                response.Content = new StringContent("Falha ao inserir a categoria");
+                response.Content = new StringContent("Falha ao inserir a categoria\n\n" + insercao[1].ToString());
             }
 
             //Retorna a mensagem http
@@ -56,7 +61,10 @@ namespace ProductManager.Controllers
             //Cria uma mensagem de resposta HTTP
             HttpResponseMessage response = null;
 
-            if (DAO.CategoryDAO.UpdateCategory(categoria))
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> atualizacao = DAO.CategoryDAO.UpdateCategory(categoria);
+
+            if (Convert.ToBoolean(atualizacao[0]))
             {
                 //Caso tenha dado algum problema, define a mensagem de resposta com erro
                 response = Request.CreateResponse(HttpStatusCode.OK);
@@ -70,7 +78,7 @@ namespace ProductManager.Controllers
                 response = Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 //Caso tenha dado algum problema, define a mensagem personalizada de resposta
-                response.Content = new StringContent("Falha ao atualizar a categoria");
+                response.Content = new StringContent("Falha ao atualizar a categoria\n\n" + atualizacao[1].ToString());
             }
 
             //Retorna a mensagem http
@@ -83,7 +91,10 @@ namespace ProductManager.Controllers
         {
             HttpResponseMessage response;
 
-            if (DAO.CategoryDAO.DeleteCategory(id))
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> delecao = DAO.CategoryDAO.DeleteCategory(id);
+
+            if (Convert.ToBoolean(delecao[0]))
             {
                 //Caso tenha dado algum problema, define a mensagem de resposta com erro
                 response = Request.CreateResponse(HttpStatusCode.OK);
@@ -97,7 +108,7 @@ namespace ProductManager.Controllers
                 response = Request.CreateResponse(HttpStatusCode.BadRequest);
 
                 //Caso tenha dado algum problema, define a mensagem personalizada de resposta
-                response.Content = new StringContent("Falha ao deletar a categoria");
+                response.Content = new StringContent("Falha ao deletar a categoria\n\n" + delecao[1].ToString());
             }
 
             //Retorna a mensagem http

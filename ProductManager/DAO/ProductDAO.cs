@@ -18,7 +18,7 @@ namespace ProductManager.DAO
         static public List<Models.Product> SelectProducts(int id = 0)
         {
             //Comando SQL que buscará todos os campos de todos os produtos na base de dados ou de um produto específico
-            strSQL =    "SELECT produto.id AS p_id, produto.descricao AS p_descricao, produto.preco as p_preco, " +
+            strSQL =    "SELECT produto.id AS p_id, produto.descricao AS p_descricao, CONVERT(DECIMAL(10, 2), produto.preco) as p_preco, " +
                         "       categoria.id AS c_id, categoria.descricao AS c_descricao " +
                         "FROM   Produto " +
                         "       LEFT JOIN Categoria ON produto.id_categoria = categoria.id " +
@@ -74,14 +74,16 @@ namespace ProductManager.DAO
 
             return products;
         }
-        static public bool InsertProduct(Models.Product produto)
+        static public List<Object> InsertProduct(Models.Product produto)
         {
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> retorno = new List<Object>();
 
             if (produto != null)
             {
                 //Comando SQL que irá inserir o produto no banco de dados
                 strSQL =    "INSERT INTO Produto " +
-                            "(descricao, categoria, preco) " +
+                            "(descricao, id_categoria, preco) " +
                             "VALUES (@descricao, @categoria, @preco)";
 
                 //Caso a conexão esteja fechada, a abre
@@ -126,13 +128,16 @@ namespace ProductManager.DAO
                     //Executa o comando SQL
                     command.ExecuteNonQuery();
 
-                    return true;
+                    retorno.Add(true);
+                    retorno.Add("");
+                    return retorno;
 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
-                    return false;
+                    retorno.Add(false);
+                    retorno.Add(e.ToString());
+                    return retorno;
                 }
 
                 //Caso a conexão esteja aberta, a fecha
@@ -141,11 +146,17 @@ namespace ProductManager.DAO
             }
             else
             {
-                return false;
+                retorno.Add(false);
+                retorno.Add("O produto não pode ser nulo");
+                return retorno;
             }
         }
-        static public bool UpdateProduct(Models.Product produto)
+        static public List<Object> UpdateProduct(Models.Product produto)
         {
+
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> retorno = new List<Object>();
+
             if (produto != null)
             {
                 try
@@ -153,7 +164,7 @@ namespace ProductManager.DAO
                     //Comando SQL que atualizará o produto na base de dados
                     strSQL =    "UPDATE Produto " +
                                 "SET    descricao = @descricao, " +
-                                "       categoria = @categoria, " +
+                                "       id_categoria = @categoria, " +
                                 "       preco = @preco " +
                                 "WHERE  id = @id";
 
@@ -179,13 +190,16 @@ namespace ProductManager.DAO
                     //Executa o comando SQL
                     command.ExecuteNonQuery();
 
-                    return true;
+                    retorno.Add(true);
+                    retorno.Add("");
+                    return retorno;
 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
-                    return false;
+                    retorno.Add(false);
+                    retorno.Add(e.ToString());
+                    return retorno;
                 }
 
                 //Caso a conexão esteja aberta, a fecha
@@ -195,11 +209,17 @@ namespace ProductManager.DAO
             }
             else
             {
-                return false;
+                retorno.Add(false);
+                retorno.Add("O produto não pode ser nulo");
+                return retorno;
             }
         }
-        static public bool DeleteProduct(int id)
+        static public List<Object> DeleteProduct(int id)
         {
+
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> retorno = new List<Object>();
+
             //Comando SQL que deletará o produto da base de dados
             strSQL =    "DELETE Produto " +
                         "WHERE  id = @id";
@@ -230,13 +250,17 @@ namespace ProductManager.DAO
                 if (Conn.State == ConnectionState.Open)
                     Conn.Close();
 
-                return true;
+
+                retorno.Add(true);
+                retorno.Add("");
+                return retorno;
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
-                return false;
+                retorno.Add(false);
+                retorno.Add(e.ToString());
+                return retorno;
             }
         }
     }

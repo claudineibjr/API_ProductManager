@@ -66,8 +66,11 @@ namespace ProductManager.DAO
 
             return categories;
         }
-        static public bool InsertCategory(Models.Category categoria)
+        static public List<Object> InsertCategory(Models.Category categoria)
         {
+
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> retorno = new List<Object>();
 
             if (categoria != null)
             {
@@ -116,13 +119,16 @@ namespace ProductManager.DAO
                     //Executa o comando SQL
                     command.ExecuteNonQuery();
 
-                    return true;
+                    retorno.Add(true);
+                    retorno.Add("");
+                    return retorno;
 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
-                    return false;
+                    retorno.Add(false);
+                    retorno.Add(e.ToString());
+                    return retorno;
                 }
 
                 //Caso a conexão esteja aberta, a fecha
@@ -131,11 +137,17 @@ namespace ProductManager.DAO
             }
             else
             {
-                return false;
+                retorno.Add(false);
+                retorno.Add("A categoria não pode ser nula");
+                return retorno;
             }
         }
-        static public bool UpdateCategory(Models.Category categoria)
+        static public List<Object> UpdateCategory(Models.Category categoria)
         {
+            
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> retorno = new List<Object>();
+
             if (categoria != null)
             {
                 try
@@ -165,13 +177,16 @@ namespace ProductManager.DAO
                     //Executa o comando SQL
                     command.ExecuteNonQuery();
 
-                    return true;
+                    retorno.Add(true);
+                    retorno.Add("");
+                    return retorno;
 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
-                    return false;
+                    retorno.Add(false);
+                    retorno.Add(e.ToString());
+                    return retorno;
                 }
 
                 //Caso a conexão esteja aberta, a fecha
@@ -181,11 +196,17 @@ namespace ProductManager.DAO
             }
             else
             {
-                return false;
+                retorno.Add(false);
+                retorno.Add("A categoria não pode ser nula");
+                return retorno;
             }
         }
-        static public bool DeleteCategory(int id)
+        static public List<Object> DeleteCategory(int id)
         {
+
+            //Criado objeto que conterá o retorno. Na posição 0, como true ou false e na posição 1 como string que pode conter o erro
+            List<Object> retorno = new List<Object>();
+
             //Comando SQL que deletará a categoria da base de dados
             strSQL =    "DELETE Categoria " +
                         "WHERE  id = @id";
@@ -216,13 +237,16 @@ namespace ProductManager.DAO
                 if (Conn.State == ConnectionState.Open)
                     Conn.Close();
 
-                return true;
+                retorno.Add(true);
+                retorno.Add("");
+                return retorno;
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
-                return false;
+                retorno.Add(false);
+                retorno.Add(e.ToString());
+                return retorno;
             }
         }
     }

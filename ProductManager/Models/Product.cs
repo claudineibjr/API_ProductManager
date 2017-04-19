@@ -37,5 +37,13 @@ namespace ProductManager.Models
             categoria = _categoria;
         }
 
+        override
+        public string ToString() {
+            return "ID: " + this.id + "\n" +
+                    "Descrição: " + this.descricao + "\n" +
+                    "Preço: " + this.preco + "\n" +
+                    "Categoria: " + this.categoria.id + " - " + this.categoria.descricao;
+        }
+
     }
 }
